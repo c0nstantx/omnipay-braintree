@@ -225,6 +225,15 @@ class Gateway extends AbstractGateway
      * @param array $parameters
      * @return Message\PurchaseRequest
      */
+    public function releaseFromEscrow(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Braintree\Message\ReleaseFromEscrowRequest', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     * @return Message\PurchaseRequest
+     */
     public function void(array $parameters = array())
     {
         return $this->createRequest('\Omnipay\Braintree\Message\VoidRequest', $parameters);
@@ -251,6 +260,14 @@ class Gateway extends AbstractGateway
     }
 
     /**
+     * @return \Omnipay\Common\Message\PlansRequest
+     */
+    public function plans()
+    {
+        return $this->createRequest('\Omnipay\Braintree\Message\PlanRequest', array());
+    }
+
+    /**
      * @param array $parameters
      *
      * @return \Braintree_WebhookNotification
@@ -263,5 +280,14 @@ class Gateway extends AbstractGateway
             $parameters['bt_signature'],
             $parameters['bt_payload']
         );
+    }
+
+    /**
+     * @param array $parameters
+     * @return Message\FindRequest
+     */
+    public function fetchTransaction(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Braintree\Message\FindRequest', $parameters);
     }
 }

@@ -37,16 +37,24 @@ class AuthorizeRequest extends AbstractRequest
         // special validation
         if ($this->getPaymentMethodToken()) {
             $data['paymentMethodToken'] = $this->getPaymentMethodToken();
-        } elseif($this->getToken()) {
+        } elseif ($this->getToken()) {
             $data['paymentMethodNonce'] = $this->getToken();
+        } elseif ($this->getCustomerId()) {
+            $data['customerId'] = $this->getCustomerId();
         } else {
-            throw new InvalidRequestException("The token (payment nonce) or paymentMethodToken field should be set.");
+            throw new InvalidRequestException("The token (payment nonce), paymentMethodToken or customerId field should be set.");
         }
 
         // Remove null values
         $data = array_filter($data, function($value){
             return ! is_null($value);
         });
+
+        if ($this->getCardholderName()) {
+            $data['creditCard'] = array(
+                'cardholderName' => $this->getCardholderName(),
+            );
+        }
 
         $data += $this->getOptionData();
         $data += $this->getCardData();
@@ -66,5 +74,25 @@ class AuthorizeRequest extends AbstractRequest
         $response = $this->braintree->transaction()->sale($data);
 
         return $this->createResponse($response);
+    }
+
+    /**
+     * [optional] The cardholder name associated with the credit card. 175 character maximum.
+     * Required for iOS integration because its missing in "tokenizeCard" function there.
+     * See: https://developers.braintreepayments.com/reference/request/transaction/sale/php#credit_card.cardholder_name
+     *
+     * @param $value
+     * @return mixed
+     */
+    public function setCardholderName($value)
+    {
+        $cardholderName = trim($value);
+        $cardholderName = strlen($cardholderName)>0 ? $cardholderName : null;
+        return $this->setParameter('cardholderName', $cardholderName);
+    }
+
+    public function getCardholderName()
+    {
+        return $this->getParameter('cardholderName');
     }
 }
